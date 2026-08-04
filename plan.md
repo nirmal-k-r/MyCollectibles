@@ -1,22 +1,23 @@
 # Agenda
 --------
-- Setting up server script
-    - Listen to ip and ports
-- Setup config script
-    - Database config for later
-- Install nodemon
-- Setup up Express application
-    - Setup app.js
-    - Setup the component folders
-    - Create all other configuration folders
-    - Create and link routers
-    - Connect our templates (views) directory
-    - Connect our public/static directory
-    - Setup middleware
-    - Setup our error handling
-- Create our first route
-- Respond to our first request
-- Render a template
+- Setting up server script ✅
+    - Listen to ip and ports✅
+- Setup config script✅
+    - Database config for later✅
+- Install nodemon✅
+- Setup up Express application✅
+    - Setup app.js ✅
+    - Setup the component folders✅
+    - Create all other configuration folders✅
+    - Create and link routers ✅
+    - Connect our templates (views) directory ✅
+    - Connect our public/static directory c
+    - Setup middleware ✅
+    - Setup our error handling ✅
+- Create our first route ✅
+- Respond to our first request ✅
+- Render first template ✅
+    - Pass data in the context and use in the ejs ✅
 
 
 

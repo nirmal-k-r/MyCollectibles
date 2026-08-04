@@ -6,31 +6,48 @@ const express = require('express');
 
 
 //Router imports
+const homeRouter = require('./routes/home');
+// const authRouter = require('./routes/auth');
+// const adminRouter = require('./routes/admin');
 
 //Create express app
 const app = express();
 
 //Middleware
 
+//link to the views folder
+app.set('views', './src/views');
+app.set('view engine', 'ejs');
+
+//link to the public folder
+app.use(express.static('public'));
+
+//logging middleware
+app.use((req, res, next) => {
+    console.log(`${req.method} request for ${req.url}`);
+    next();
+});
 
 
 
 //Routers
+app.use('/', homeRouter);
+// app.use('/auth', authRouter);
+// app.use('/admin', adminRouter);
 
 
-//test route
-app.get('/', (req, res) => {
-    res.send('Welcome to MyCollectibles web app');1
+//error handling
+app.use((req, res, next) => {
+    res.status(404).send('404 Page Not Found');
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('500 Internal Server Error');
 });
 
 
-app.get('/about', (req, res) => {
-    res.send('About page');
-});
 
-app.get('/contact', (req, res) => {
-    res.send('Contact page');
-});
 
 //export the app
 module.exports = app;
