@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/about', (req, res) => {  
-      
+ 
     ctx={
         description: "MyCollectibles is a web application that allows users to manage and showcase their personal collections of various items. Users can create an account, add items to their collection, and view their collection in a visually appealing way."
     }
