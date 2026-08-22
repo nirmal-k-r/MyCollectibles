@@ -4,7 +4,6 @@
 const express = require('express');
 const db= require('./config/db');
 
-
 //Router imports
 const homeRouter = require('./routes/home');
 // const authRouter = require('./routes/auth');
@@ -14,7 +13,6 @@ const homeRouter = require('./routes/home');
 const app = express();
 
 //Middleware
-
 //link to the views folder
 app.set('views', './src/views');
 app.set('view engine', 'ejs');
@@ -28,13 +26,10 @@ app.use((req, res, next) => {
     next();
 });
 
-
-
 //Routers
 app.use('/', homeRouter);
 // app.use('/auth', authRouter);
 // app.use('/admin', adminRouter);
-
 
 //error handling
 app.use((req, res, next) => {
