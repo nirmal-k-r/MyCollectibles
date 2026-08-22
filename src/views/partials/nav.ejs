@@ -1,0 +1,21 @@
+
+<nav class="site-navbar" aria-label="Main navigation">
+    <a class="brand" href="/">MyCollectibles</a>
+
+    <div class="nav-links">
+        <a class="nav-link active" href="/" aria-current="page">Home</a>
+        <a class="nav-link" href="/about">About</a>
+         <% if (globals.session.user) { %>
+            <% if (globals.session.user.role === 'admin') { %>
+                <a class="nav-link" href="/admin">Admin</a>
+            <% } %>
+        <% } %>
+
+        <% if (globals.session.user) { %>
+            <span class="welcome-link">Hi <%= globals.session.user.name %></span>
+            <a class="login-link" href="/auth/logout">Logout</a>
+        <% } else { %>
+            <a class="login-link" href="/auth/login">Login</a>
+        <% } %>
+    </div>
+</nav>

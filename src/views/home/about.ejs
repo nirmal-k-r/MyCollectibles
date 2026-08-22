@@ -1,13 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>About page</title>
-        <link rel="stylesheet" href="/css/style.css">
-    </head>
-    <body>
-        <h1>About us</h1>
-        <p><%= description %></p>
-    </body>
-</html>
+<%- include('../partials/header') %>
+
+    <main class="about-content">
+        <section class="about-intro">
+            <p class="eyebrow">A home for what matters</p>
+            <h1>Collect the moments<br>that make you, you.</h1>
+            <p class="about-description"><%= description %></p>
+        </section>
+
+        <section class="about-values" aria-label="What MyCollectibles offers">
+            <article class="value-item">
+                <span class="value-number">01</span>
+                <h2>Gather</h2>
+                <p>Bring every favorite into one thoughtful, personal space.</p>
+            </article>
+            <article class="value-item">
+                <span class="value-number">02</span>
+                <h2>Showcase</h2>
+                <p>Give each piece the attention and story it deserves.</p>
+            </article>
+            <article class="value-item">
+                <span class="value-number">03</span>
+                <h2>Remember</h2>
+                <p>Keep the meaning behind your collection close at hand.</p>
+            </article>
+        </section>
+    </main>
+
+<%- include('../partials/footer') %>

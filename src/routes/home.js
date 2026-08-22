@@ -10,7 +10,7 @@ const router = express.Router();
 
 //home route
 router.get('/', (req, res) => {
-    res.send('Welcome to MyCollectibles!');
+    res.render('home/home');
 });
 
 router.get('/about', (req, res) => {  
