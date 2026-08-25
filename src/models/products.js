@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     category: String,
-    images: {
+    image: {
         type: String
     },
     stock: {

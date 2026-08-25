@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
                 ...savedUser
             }=updatedUser.toObject();
 
-            console.log('User logged in:', savedUser);
+            // console.log('User logged in:', savedUser);
 
             req.session.user=savedUser;
             res.redirect('/');
@@ -101,7 +101,6 @@ router.post('/register', async (req, res) => {
     //create a token
     let token_base=email+pwd+Date.now().toString();
     let token=await bcrypt.hash(token_base,10); //create a token
-
 
 
     //create a new user

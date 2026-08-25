@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 //Router imports
 const homeRouter = require('./routes/home');
 const authRouter = require('./routes/auth');
-// const adminRouter = require('./routes/admin');
+const adminRouter = require('./routes/admin');
 
 
 //Create express app
@@ -21,7 +21,7 @@ app.set('views', './src/views');
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 
 //link to the public folder
 app.use(express.static('public'));
@@ -31,6 +31,7 @@ app.use((req, res, next) => {
     console.log(`${req.method} request for ${req.url}`);
     next();
 });
+
 
 //session middleware
 app.use(session({
@@ -50,7 +51,7 @@ app.use((req, res, next) => {
 //Routers
 app.use('/', homeRouter);
 app.use('/auth', authRouter);
-// app.use('/admin', adminRouter);
+app.use('/admin', adminRouter);
 
 //error handling
 app.use((req, res, next) => {
