@@ -14,7 +14,6 @@
                 <div class="sale-search-wrap">
                     <label class="sr-only" for="sale-search">Search items</label>
                     <input id="sale-search" type="search" placeholder="Search collectibles" autocomplete="off">
-                    <div id="search-suggestions" class="search-suggestions" hidden></div>
                 </div>
                 <div class="sale-filter-wrap">
                     <label class="sr-only" for="sale-category">Filter by category</label>
@@ -26,11 +25,24 @@
                     </select>
                 </div>
             </div>
-            
-            <!-- Product cards will be dynamically inserted here -->
-            <div id="sale-products" class="sale-products" aria-live="polite"></div>
 
-        
+            <!-- <div id="sale-products" class="sale-products" aria-live="polite">
+                <% products.forEach(product => { %>
+                    <article class="sale-product-card">
+                        <div class="sale-product-image-wrap">
+                            <img src="<%= product.image || 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80' %>" alt="<%= product.name || 'Collectible' %>" class="sale-product-image" data-product-name="<%= product.name || 'Collectible' %>" data-product-image="<%= product.image || 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80' %>" data-product-category="<%= product.category || 'General' %>" data-product-description="<%= product.description || 'A unique collectible with timeless appeal.' %>" data-product-price="<%= product.price || 0 %>">
+                        </div>
+                        <div class="sale-product-body">
+                            <div class="sale-product-topline">
+                                <span class="sale-category-pill"><%= product.category || 'General' %></span>
+                                <strong class="sale-product-price"><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MUR', maximumFractionDigits: 2 }).format(Number(product.price || 0)) %></strong>
+                            </div>
+                            <h4><%= product.name || 'Collectible' %></h4>
+                            <button type="button" class="sale-product-button">Add to cart</button>
+                        </div>
+                    </article>
+                <% }) %> -->
+            </div>
             <div id="sale-loading" class="sale-loading" hidden>Loading more products...</div>
             <div id="sale-empty-state" class="sale-empty-state" hidden>No products match your search.</div>
         </section>
@@ -65,12 +77,11 @@
         const saleEmptyState = document.getElementById('sale-empty-state');
         const saleMeta = document.getElementById('sale-results-meta');
         const searchInput = document.getElementById('sale-search');
-        const searchSuggestions = document.getElementById('search-suggestions');
         const categorySelect = document.getElementById('sale-category');
 
         const state = {
             page: 1,
-            limit: 20,
+            limit: 6,
             keyword: '',
             category: 'all',
             loading: false,
@@ -147,7 +158,7 @@
             return `
                 <article class="sale-product-card">
                     <div class="sale-product-image-wrap">
-                        <img src="${image}" alt="${name}" class="sale-product-image" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80';">
+                        <img src="${image}" alt="${name}" class="sale-product-image" data-product-name="${name}" data-product-image="${image}" data-product-category="${category}" data-product-description="${description}" data-product-price="${price}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80';">
                     </div>
                     <div class="sale-product-body">
                         <div class="sale-product-topline">
@@ -155,7 +166,7 @@
                             <strong class="sale-product-price">${formattedPrice}</strong>
                         </div>
                         <h4>${name}</h4>
-                        <button type="button" class="sale-product-button" data-product-name="${name}" data-product-image="${image}" data-product-category="${category}" data-product-description="${description}" data-product-price="${price}">View</button>
+                        <button type="button" class="sale-product-button">Add to cart</button>
                     </div>
                 </article>
             `;
@@ -170,14 +181,14 @@
             saleEmptyState.hidden = true;
             saleProducts.insertAdjacentHTML('beforeend', products.map(createProductCard).join(''));
 
-            saleProducts.querySelectorAll('.sale-product-button').forEach((actionButton) => {
-                actionButton.addEventListener('click', () => {
+            saleProducts.querySelectorAll('.sale-product-image').forEach((imageNode) => {
+                imageNode.addEventListener('click', () => {
                     const product = {
-                        name: actionButton.dataset.productName,
-                        image: actionButton.dataset.productImage,
-                        category: actionButton.dataset.productCategory,
-                        description: actionButton.dataset.productDescription,
-                        price: actionButton.dataset.productPrice
+                        name: imageNode.dataset.productName,
+                        image: imageNode.dataset.productImage,
+                        category: imageNode.dataset.productCategory,
+                        description: imageNode.dataset.productDescription,
+                        price: imageNode.dataset.productPrice
                     };
 
                     openImageModal(product);
@@ -233,117 +244,18 @@
             }
         }
 
-        function isMobileView() {
-            return window.innerWidth <= 768;
-        }
-
-        function hideSearchSuggestions() {
-            searchSuggestions.hidden = true;
-            searchSuggestions.innerHTML = '';
-        }
-
-        function buildSuggestionMarkup(products) {
-            if (!isMobileView()) {
-                hideSearchSuggestions();
-                return;
-            }
-
-            if (!products.length) {
-                hideSearchSuggestions();
-                return;
-            }
-
-            searchSuggestions.innerHTML = products
-                .slice(0, 5)
-                .map((product) => `
-                    <button type="button" class="search-suggestion-item" data-product-name="${product.name}" data-product-image="${product.image}" data-product-category="${product.category || 'General'}" data-product-description="${product.description || 'A unique collectible with timeless appeal.'}" data-product-price="${product.price || 0}">
-                        <span class="suggestion-name">${product.name}</span>
-                        <span class="suggestion-meta">${product.category || 'General'}</span>
-                    </button>
-                `)
-                .join('');
-
-            searchSuggestions.hidden = false;
-
-            searchSuggestions.querySelectorAll('.search-suggestion-item').forEach((item) => {
-                item.addEventListener('click', () => {
-                    const product = {
-                        name: item.dataset.productName,
-                        image: item.dataset.productImage,
-                        category: item.dataset.productCategory,
-                        description: item.dataset.productDescription,
-                        price: item.dataset.productPrice
-                    };
-
-                    openImageModal(product);
-                    hideSearchSuggestions();
-                    searchInput.value = product.name;
-                });
-            });
-        }
-
-        async function loadSearchSuggestions() {
-            if (!isMobileView()) {
-                hideSearchSuggestions();
-                return;
-            }
-
-            const keyword = searchInput.value.trim();
-            const category = categorySelect.value;
-
-            if (!keyword) {
-                hideSearchSuggestions();
-                return;
-            }
-
-            try {
-                const params = new URLSearchParams({
-                    page: 1,
-                    limit: 5,
-                    keyword,
-                    category
-                });
-
-                const response = await fetch(`/products?${params.toString()}`);
-                const data = await response.json();
-                buildSuggestionMarkup(data.products || []);
-            } catch (error) {
-                console.error('Error fetching search suggestions:', error);
-                hideSearchSuggestions();
-            }
-        }
-
         function handleSearch() {
             state.keyword = searchInput.value.trim();
             state.category = categorySelect.value;
             state.hasMore = true;
             state.page = 1;
             loadProducts(true);
-            loadSearchSuggestions();
         }
 
         let searchTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(handleSearch, 250);
-        });
-
-        searchInput.addEventListener('focus', () => {
-            if (isMobileView() && searchInput.value.trim()) {
-                loadSearchSuggestions();
-            }
-        });
-
-        document.addEventListener('click', (event) => {
-            if (!event.target.closest('.sale-search-wrap')) {
-                hideSearchSuggestions();
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            if (!isMobileView()) {
-                hideSearchSuggestions();
-            }
         });
 
         categorySelect.addEventListener('change', handleSearch);
