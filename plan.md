@@ -59,3 +59,21 @@ http://localhost:3000/
   - PUT
   - PATCH
   - DELETE
+
+
+
+
+  # Cart and checkout
+    - chekout page
+        - GET /checkout
+        - POST /checkout - DUMMY PAYMENT and save to database
+    - cart
+        - EJS
+            - cart.ejs - Modal (popup cart)
+            - Add cart button to the navbar
+        - Routes
+            - GET /cart - get cart contents
+            - POST /cart/add - add item to cart (prod_id,qty)
+            - DELETE /cart/delete - delete item from cart
+            - POST /cart/update - update cart (qty)
+

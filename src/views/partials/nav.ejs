@@ -5,6 +5,9 @@
     <div class="nav-links">
         <a class="nav-link active" href="/" aria-current="page">Home</a>
         <a class="nav-link" href="/about">About</a>
+        <button class="cart-button" id="open-cart" type="button" aria-haspopup="dialog" aria-controls="cart-modal">
+            Cart <span id="cart-count" class="cart-count" aria-label="0 items">0</span>
+        </button>
          <% if (globals.session.user) { %>
             <% if (globals.session.user.role === 'admin') { %>
                 <a class="nav-link" href="/admin">Admin</a>

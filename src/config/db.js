@@ -5,16 +5,21 @@ const mongoose=require("mongoose");
 require('dotenv').config();
 
 //get username and password from .env file
-username=process.env.Db_uname;
-password=process.env.Db_password;
+const username = process.env.Db_uname;
+const password = process.env.Db_password;
 
 //connect to the database
-config={
+const config = {
     // useNewUrlParser:true,
     // useUnifiedTopology:true
 }
 
-mongoose.connect(`mongodb+srv://${username}:${password}@rspcluster.hqkr1yq.mongodb.net/MyCollectibles?appName=rspcluster`, config);
+const mongoUri = `mongodb+srv://${username}:${password}@rspcluster.hqkr1yq.mongodb.net/MyCollectibles?appName=rspcluster`;
+
+mongoose.connect(mongoUri, config).catch(() => {
+    // The connection event handler below logs the error. Catching here keeps
+    // a failed initial connection from becoming an unhandled rejection.
+});
 
 //log connection status
 mongoose.connection.on('connected',()=>{

@@ -85,6 +85,7 @@
         const imageModalDescription = document.getElementById('image-modal-description');
         const imageModalTags = document.getElementById('image-modal-tags');
         const imageModalClose = document.querySelector('.image-modal-close');
+        const imageModalCart = document.querySelector('.image-modal-cart');
 
         function openImageModal(product) {
             imageModalImg.src = product.image;
@@ -97,6 +98,8 @@
                 maximumFractionDigits: 2
             }).format(Number(product.price || 0));
             imageModalDescription.textContent = product.description || 'A unique collectible with timeless appeal.';
+            imageModalCart.dataset.productId = product.id || '';
+            imageModalCart.disabled = !product.id;
 
             const tagList = [
                 product.category || 'General',
@@ -120,6 +123,26 @@
         }
 
         imageModalClose.addEventListener('click', closeImageModal);
+        imageModalCart.addEventListener('click', async () => {
+            const itemID = imageModalCart.dataset.productId;
+            if (!itemID) return;
+
+            imageModalCart.disabled = true;
+            const originalLabel = imageModalCart.textContent;
+            imageModalCart.textContent = 'Adding…';
+            try {
+                await window.cart.add(itemID);
+                imageModalCart.textContent = 'Added to cart';
+            } catch (error) {
+                console.error('Error adding item to cart:', error);
+                imageModalCart.textContent = 'Try again';
+            } finally {
+                setTimeout(() => {
+                    imageModalCart.textContent = originalLabel;
+                    imageModalCart.disabled = false;
+                }, 900);
+            }
+        });
         imageModal.addEventListener('click', (event) => {
             if (event.target.dataset.close === 'true' || event.target === imageModal) {
                 closeImageModal();
@@ -155,7 +178,7 @@
                             <strong class="sale-product-price">${formattedPrice}</strong>
                         </div>
                         <h4>${name}</h4>
-                        <button type="button" class="sale-product-button" data-product-name="${name}" data-product-image="${image}" data-product-category="${category}" data-product-description="${description}" data-product-price="${price}">View</button>
+                        <button type="button" class="sale-product-button" data-product-id="${product._id}" data-product-name="${name}" data-product-image="${image}" data-product-category="${category}" data-product-description="${description}" data-product-price="${price}">View</button>
                     </div>
                 </article>
             `;
@@ -173,6 +196,7 @@
             saleProducts.querySelectorAll('.sale-product-button').forEach((actionButton) => {
                 actionButton.addEventListener('click', () => {
                     const product = {
+                        id: actionButton.dataset.productId,
                         name: actionButton.dataset.productName,
                         image: actionButton.dataset.productImage,
                         category: actionButton.dataset.productCategory,
@@ -256,7 +280,7 @@
             searchSuggestions.innerHTML = products
                 .slice(0, 5)
                 .map((product) => `
-                    <button type="button" class="search-suggestion-item" data-product-name="${product.name}" data-product-image="${product.image}" data-product-category="${product.category || 'General'}" data-product-description="${product.description || 'A unique collectible with timeless appeal.'}" data-product-price="${product.price || 0}">
+                    <button type="button" class="search-suggestion-item" data-product-id="${product._id}" data-product-name="${product.name}" data-product-image="${product.image}" data-product-category="${product.category || 'General'}" data-product-description="${product.description || 'A unique collectible with timeless appeal.'}" data-product-price="${product.price || 0}">
                         <span class="suggestion-name">${product.name}</span>
                         <span class="suggestion-meta">${product.category || 'General'}</span>
                     </button>
@@ -268,6 +292,7 @@
             searchSuggestions.querySelectorAll('.search-suggestion-item').forEach((item) => {
                 item.addEventListener('click', () => {
                     const product = {
+                        id: item.dataset.productId,
                         name: item.dataset.productName,
                         image: item.dataset.productImage,
                         category: item.dataset.productCategory,

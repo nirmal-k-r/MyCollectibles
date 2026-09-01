@@ -1,0 +1,162 @@
+<div id="cart-modal" class="cart-modal" hidden>
+    <div class="cart-modal-backdrop" data-cart-close="true"></div>
+    <section class="cart-modal-panel" role="dialog" aria-modal="true" aria-labelledby="cart-modal-title">
+        <header class="cart-modal-header">
+            <div>
+                <p class="cart-modal-kicker">Your selection</p>
+                <h2 id="cart-modal-title">Shopping cart</h2>
+            </div>
+            <button id="close-cart" class="cart-close" type="button" aria-label="Close cart">×</button>
+        </header>
+
+        <p id="cart-status" class="cart-status" aria-live="polite"></p>
+        <div id="cart-items" class="cart-items"></div>
+
+        <footer class="cart-modal-footer">
+            <div class="cart-total-row"><span>Total</span><strong id="cart-total">MUR 0.00</strong></div>
+            <a id="cart-checkout" class="cart-checkout" href="/checkout">Proceed to checkout</a>
+        </footer>
+    </section>
+</div>
+
+<script>
+    (() => {
+        const modal = document.getElementById('cart-modal');
+        const openButton = document.getElementById('open-cart');
+        const closeButton = document.getElementById('close-cart');
+        const itemsContainer = document.getElementById('cart-items');
+        const status = document.getElementById('cart-status');
+        const total = document.getElementById('cart-total');
+        const count = document.getElementById('cart-count');
+        const checkout = document.getElementById('cart-checkout');
+        const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MUR', maximumFractionDigits: 2 });
+
+        const setStatus = (message = '') => { status.textContent = message; };
+        const setCount = (quantity) => {
+            count.textContent = quantity;
+            count.setAttribute('aria-label', `${quantity} item${quantity === 1 ? '' : 's'}`);
+        };
+
+        function closeCart() {
+            modal.hidden = true;
+            document.body.style.overflow = '';
+            openButton.focus();
+        }
+
+        async function request(url, options = {}) {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error('Cart request failed');
+            return response.json();
+        }
+
+        function emptyCart() {
+            itemsContainer.replaceChildren();
+            const message = document.createElement('p');
+            message.className = 'cart-empty';
+            message.textContent = 'Your cart is empty.';
+            itemsContainer.append(message);
+            total.textContent = money.format(0);
+            setCount(0);
+            checkout.classList.add('is-disabled');
+            checkout.setAttribute('aria-disabled', 'true');
+        }
+
+        function renderCart(cart) {
+            const entries = Object.entries(cart || {}).filter(([, item]) => item && item.product);
+            if (!entries.length) return emptyCart();
+
+            itemsContainer.replaceChildren();
+            let itemCount = 0;
+            let cartTotal = 0;
+            entries.forEach(([itemID, item]) => {
+                const product = item.product;
+                const quantity = Number(item.quantity) || 1;
+                const price = Number(product.price) || 0;
+                itemCount += quantity;
+                cartTotal += price * quantity;
+
+                const row = document.createElement('article');
+                row.className = 'cart-item';
+                const details = document.createElement('div');
+                details.className = 'cart-item-details';
+                const name = document.createElement('h3');
+                name.textContent = product.name || 'Collectible';
+                const unitPrice = document.createElement('p');
+                unitPrice.textContent = `${money.format(price)} each`;
+                details.append(name, unitPrice);
+
+                const controls = document.createElement('div');
+                controls.className = 'cart-item-controls';
+                const quantityLabel = document.createElement('label');
+                quantityLabel.textContent = 'Qty';
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.min = '1';
+                quantityInput.step = '1';
+                quantityInput.value = quantity;
+                quantityInput.setAttribute('aria-label', `Quantity for ${product.name || 'collectible'}`);
+                quantityLabel.append(quantityInput);
+
+                //js event listener on update
+                quantityInput.addEventListener('change', async () => {
+                    const nextQuantity = Number.parseInt(quantityInput.value, 10);
+                    if (!Number.isInteger(nextQuantity) || nextQuantity < 1) {
+                        quantityInput.value = quantity;
+                        return;
+                    }
+                    try {
+                        await request('/cart/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ itemID, quantity: nextQuantity }) });
+                        await loadCart();
+                    } catch (error) { setStatus('Could not update that item. Please try again.'); }
+                });
+                const remove = document.createElement('button');
+                remove.className = 'cart-remove';
+                remove.type = 'button';
+                remove.textContent = 'Delete';
+                remove.addEventListener('click', async () => {
+                    try {
+                        await request(`/cart/delete/${encodeURIComponent(itemID)}`);
+                        await loadCart();
+                    } catch (error) { setStatus('Could not delete that item. Please try again.'); }
+                });
+                controls.append(quantityLabel, remove);
+                row.append(details, controls);
+                itemsContainer.append(row);
+            });
+            total.textContent = money.format(cartTotal);
+            setCount(itemCount);
+            checkout.classList.remove('is-disabled');
+            checkout.removeAttribute('aria-disabled');
+        }
+
+        async function loadCart() {
+            setStatus('Loading cart…');
+            try {
+                renderCart(await request('/cart'));
+                setStatus('');
+            } catch (error) {
+                itemsContainer.replaceChildren();
+                setStatus('Unable to load your cart. Please try again.');
+            }
+        }
+
+        async function addToCart(itemID, quantity = 1) {
+            await request('/cart/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ itemID, quantity }) });
+            await loadCart();
+        }
+
+        openButton.addEventListener('click', async () => {
+            modal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            await loadCart();
+            closeButton.focus();
+        });
+        closeButton.addEventListener('click', closeCart);
+        modal.addEventListener('click', (event) => { if (event.target.dataset.cartClose === 'true') closeCart(); });
+        document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !modal.hidden) closeCart(); });
+        checkout.addEventListener('click', (event) => { if (checkout.getAttribute('aria-disabled') === 'true') event.preventDefault(); });
+
+        window.cart = { add: addToCart, refresh: loadCart };
+        loadCart();
+    })();
+</script>

@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+
+<main class="checkout-content">
+    <section class="checkout-panel" aria-labelledby="checkout-title">
+        <% const purchase = purchases; %>
+        <% if (purchase && purchase.products && purchase.products.length) { %>
+            <p class="eyebrow">Order confirmed</p>
+            <h1 id="checkout-title">Thank you, <%= user.name %>!</h1>
+            <p class="checkout-intro">Your order has been received and is currently <strong><%= purchase.status %></strong>.</p>
+            <div class="checkout-items">
+                <% purchase.products.forEach(({ product, quantity }) => { %>
+                    <article class="checkout-item">
+                        <div>
+                            <h2><%= product ? product.name : 'Unavailable collectible' %></h2>
+                            <p>Quantity: <%= quantity %></p>
+                        </div>
+                        <strong><%= product ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MUR', maximumFractionDigits: 2 }).format(Number(product.price) * quantity) : '' %></strong>
+                    </article>
+                <% }) %>
+            </div>
+            <div class="checkout-total"><span>Total paid</span><strong><%= new Intl.NumberFormat('en-US', { style: 'currency', currency: 'MUR', maximumFractionDigits: 2 }).format(purchase.totalAmount) %></strong></div>
+            <a class="checkout-back" href="/">Continue shopping</a>
+        <% } else { %>
+            <p class="eyebrow">Order confirmation</p>
+            <h1 id="checkout-title">We could not find that order.</h1>
+            <p class="checkout-intro">Return to the collection to continue shopping.</p>
+            <a class="checkout-back" href="/">Browse collectibles</a>
+        <% } %>
+    </section>
+</main>
+
+<%- include('../partials/footer') %>

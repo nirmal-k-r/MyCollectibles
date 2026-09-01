@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const homeRouter = require('./routes/home');
 const authRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
+const cartRouter = require('./routes/cart');
 
 
 //Create express app
@@ -38,7 +39,8 @@ app.use(session({
     secret: 'gvdhj%^23bd9n%DHYWUD',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: false }, // Set to true if using HTTPS
+    lifetime: 1000 * 60 * 60 * 24 * 180 // 180 days in milliseconds
 }));
 
 app.use((req, res, next) => {
@@ -52,6 +54,7 @@ app.use((req, res, next) => {
 app.use('/', homeRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
+app.use('/cart', cartRouter);
 
 //error handling
 app.use((req, res, next) => {

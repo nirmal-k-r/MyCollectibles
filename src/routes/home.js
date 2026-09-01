@@ -83,6 +83,11 @@ router.get('/about', async (req, res) => {
     res.render('home/about',ctx)
 });
 
+// Keep the public checkout URL while the cart router handles the purchase.
+router.get('/checkout', (req, res) => res.redirect('/cart/checkout'));
+
+
+
 
 
 //export the router
